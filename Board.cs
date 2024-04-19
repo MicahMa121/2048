@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Buffers.Binary;
+using System.IO;
+using System.Threading;
 
 namespace _2048
 {
@@ -34,13 +36,16 @@ namespace _2048
         public SoundEffect _bub;
         public SoundEffect _block1;
         public SoundEffect _block2;
-
+        private bool pause;
         private Rectangle[,] _rectangles = new Rectangle[4,4];
         public Board(Texture2D texture, Rectangle border, SpriteFont font)
         {
             _texture = texture;
             _border = border;
             _font = font;
+            _savetxt = "Save Game";
+            _loadtxt = "Load Game";
+            pause = false;
         }
         public int Score { get { return _score; }set { _score = value; } }
         public int HighScore { get { return _highscore; } set { _highscore = value; } }
@@ -49,6 +54,9 @@ namespace _2048
         public int Bomb { get { return _bomb; } set { _bomb = value; } }
         public int Upgrades { get { return _upgrades; } set { _upgrades = value;} }
         public int Spawn { get { return _spawn; } set { _spawn = value; } }
+        private string _loadtxt, _savetxt;
+        public string Loadtxt { get { return _loadtxt; } set {  _loadtxt = value; } }
+        public string Savetxt { get { return _savetxt; } set { _savetxt = value; } }
         public void NewBoard()
         {
             _levelScore = 3;
@@ -64,6 +72,92 @@ namespace _2048
                     NewEmpty(i, j);
                 }
             }
+        }
+        public void LoadBoard()
+        {
+            if (pause) return;
+            _loadtxt = "Loading...";
+            if (File.Exists(@"history.txt"))
+            {
+                NewBoard();
+                string[] arrLine = File.ReadAllLines(@"history.txt");
+                int count = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        AddTo(i, j, Convert.ToInt16(arrLine[count]));
+                        count++;
+                    }
+                }
+                _levelScore = Convert.ToInt16(arrLine[count]);
+                count++;
+                _spawn = Convert.ToInt16(arrLine[count]);
+                count++;
+                _level = Convert.ToInt16(arrLine[count]);
+                count++;
+                _score = Convert.ToInt32(arrLine[count]);
+                count++;
+                _bomb = Convert.ToInt16(arrLine[count]);
+                count++;
+                _upgrades = Convert.ToInt16(arrLine[count]);
+                _loadtxt = "Loaded";
+            }
+            else
+            {
+                _loadtxt = "Not Found";
+            }
+        }
+        public void SaveBoard()
+        {
+            if (pause) return;
+            _savetxt = "Saving...";
+            if (File.Exists(@"history.txt"))
+            {
+                string[] arrLine = File.ReadAllLines(@"history.txt");
+                int count = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        arrLine[count]=Convert.ToString(_board[i, j].Value);
+                        count++;
+                    }
+                }
+                arrLine[count] = Convert.ToString(_levelScore);
+                count++;
+                arrLine[count] = Convert.ToString(_spawn);
+                count++;
+                arrLine[count] = Convert.ToString(_level);
+                count++;
+                arrLine[count] = Convert.ToString(_score);
+                count++;
+                arrLine[count] = Convert.ToString(_bomb);
+                count++;
+                arrLine[count] = Convert.ToString(_upgrades);
+                File.WriteAllLines(@"history.txt", arrLine);
+            }
+            else
+            {
+                StreamWriter writer = File.CreateText(@"history.txt");
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        writer.WriteLine(_board[i, j].Value);
+                    }
+                }
+                writer.WriteLine(_levelScore);
+                writer.WriteLine(_spawn);
+                writer.WriteLine(_level);
+                writer.WriteLine(_score);
+                writer.WriteLine(_bomb);
+                writer.WriteLine(_upgrades);
+
+                writer.WriteLine();
+                writer.Close();
+            }
+            _savetxt = "Saved";
         }
         private void NewEmpty(int i, int j)
         {
@@ -92,6 +186,7 @@ namespace _2048
                     _block2.Play();
                     Rectangle position = new Rectangle(_border.X + _border.Width / 2 - _border.Width / 4, _border.Y + _border.Height / 2 - _border.Height / 4, _border.Width / 2, _border.Height / 2);
                     _restartButton = new Restart(_restart, position);
+                    pause = true;
                     return;
                 }
                 else
@@ -163,7 +258,7 @@ namespace _2048
                 {
                     return Color.LightBlue;
                 }
-                else if (value == 4098)
+                else if (value == 4096)
                 {
                     return Color.Gold;
                 }
@@ -177,7 +272,10 @@ namespace _2048
         }
         public void Up()
         {
-            
+            if (pause) return;
+            pause = true;
+            _savetxt = "Save Game";
+            _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
             {
                 for (int j =  0; j < 4; j++)
@@ -239,7 +337,7 @@ namespace _2048
                             if (Math.Log2(_board[i, j].Value) >= _level)
                             {
                                 _level++;
-                                _bomb += _level-5;
+                                _bomb++;
                             }
                             if (_score > Math.Pow(2,_levelScore) * 1000)
                             {
@@ -255,9 +353,14 @@ namespace _2048
                 
             }
             NewBoxAtRandom();
+            pause = false;
         }
         public void Left()
         {
+            if (pause) return;
+            pause = true;
+            _savetxt = "Save Game";
+            _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -316,7 +419,7 @@ namespace _2048
                             if (Math.Log2(_board[i, j].Value) >= _level)
                             {
                                 _level++;
-                                _bomb += _level-5;
+                                _bomb++;
                             }
                             if (_score > Math.Pow(2, _levelScore) * 1000)
                             {
@@ -332,9 +435,14 @@ namespace _2048
 
             }
             NewBoxAtRandom();
+            pause = false;
         }
         public void Down()
         {
+            if (pause) return;
+            pause = true;
+            _savetxt = "Save Game";
+            _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -393,7 +501,7 @@ namespace _2048
                             if (Math.Log2(_board[i, j].Value) >= _level)
                             {
                                 _level++;
-                                _bomb += _level - 5;
+                                _bomb++;
                             }
                             if (_score > Math.Pow(2, _levelScore) * 1000)
                             {
@@ -409,9 +517,14 @@ namespace _2048
 
             }
             NewBoxAtRandom();
+            pause = false;
         }
         public void Right()
         {
+            if (pause) return;
+            pause = true;
+            _savetxt = "Save Game";
+            _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -470,7 +583,7 @@ namespace _2048
                             if (Math.Log2(_board[i, j].Value) >= _level)
                             {
                                 _level++;
-                                _bomb += _level-5;
+                                _bomb ++;
                             }
                             if (_score > Math.Pow(2, _levelScore) * 1000)
                             {
@@ -486,6 +599,7 @@ namespace _2048
 
             }
             NewBoxAtRandom();
+            pause = false;
         }
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -504,6 +618,7 @@ namespace _2048
         }
         public void Update(MouseState mouseState, MouseState prevMouseState)
         {
+
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -517,6 +632,7 @@ namespace _2048
                 {
                     _restartButton = null;
                     NewBoard();
+                    pause = false;
                     _block1.Play();
                 }
                 for (int i = 0;i < 4; i++)
@@ -543,6 +659,7 @@ namespace _2048
         }
         public void AddTo(int i, int j, int value)
         {
+            _bub.Play();
             if (_board[i, j].Value == 0)
             {
                 Rectangle rectFilled = new Rectangle(_border.X + 5 + i * 100, _border.Y + 5 + j * 100, 90, 90);

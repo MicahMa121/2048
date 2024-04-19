@@ -16,7 +16,7 @@ namespace _2048
         private SpriteBatch _spriteBatch;
 
         Texture2D rectTexture, squareTexture, circleTexture,UpTexture;
-        SpriteFont spriteFont;
+        SpriteFont spriteFont,spriteFont2;
         Texture2D bombTexture;
         Texture2D restartTexture;
 
@@ -27,8 +27,9 @@ namespace _2048
         int objectFloat=0,period = 4;
         int upgrades;
 
-        Rectangle rectBorder,rectMargin,rectBomb,rectUpgrade;
+        Rectangle rectBorder,rectMargin,rectBomb,rectUpgrade,rectSave,rectLoad;
 
+        string saveGameText,loadGameText;
         int width,height;
 
         int score;
@@ -53,13 +54,17 @@ namespace _2048
             _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 600;
             _graphics.ApplyChanges();
-            width = _graphics.PreferredBackBufferWidth; 
+            width = _graphics.PreferredBackBufferWidth;
             height = _graphics.PreferredBackBufferHeight;
 
-            rectBorder = new Rectangle((width/2-210),height/2 - 210,400,400);
+            rectBorder = new Rectangle((width / 2 - 210), height / 2 - 210, 400, 400);
             rectMargin = new Rectangle((width / 2 - 230), height / 2 - 230, 440, 440);
-            rectBomb = new Rectangle(width/15,height/6,64,64);
-            rectUpgrade = new Rectangle(width / 15, height *2/5, 64, 64);
+            rectBomb = new Rectangle(width / 15, height / 6, 64, 64);
+            rectUpgrade = new Rectangle(width / 15, height * 2 / 5, 64, 64);
+            rectSave = new Rectangle(width * 4 / 5, height * 5 / 6, 150, 50);
+            rectLoad = new Rectangle(width * 4 / 5, height * 2/3, 150, 50);
+
+
 
             score = 0;
 
@@ -110,6 +115,7 @@ namespace _2048
             bombTexture = Content.Load<Texture2D>("bombTexture");
             restartTexture = Content.Load<Texture2D>("restart");
             UpTexture = Content.Load<Texture2D>("UpArrow");
+            spriteFont2 = Content.Load<SpriteFont>("SpriteFont2");
         }
 
         protected override void Update(GameTime gameTime)
@@ -153,6 +159,24 @@ namespace _2048
                 }
             }
 
+            if (rectSave.Contains(mouseState.Position))
+            {
+                rectSave = new Rectangle(width * 4 / 5+5, height * 5 / 6+2, 140, 46);
+            }
+            else
+            {
+                rectSave = new Rectangle(width * 4 / 5, height * 5 / 6, 150, 50);
+            }
+
+            if (rectLoad.Contains(mouseState.Position))
+            {
+                rectLoad = new Rectangle(width * 4 / 5 + 5, height * 2 / 3 + 2, 140, 46);
+            }
+            else
+            {
+                rectLoad = new Rectangle(width * 4 / 5, height * 2 / 3, 150, 50);
+            }
+
             if (mouseState.LeftButton == ButtonState.Released && prevMouseState.LeftButton == ButtonState.Pressed)
             {
                 if (rectBomb.Contains(mouseState.Position)&&userbomb>0&&!bombActive)
@@ -167,6 +191,15 @@ namespace _2048
                     upgrades--;
                     game.Upgrades = upgrades;
                     game.Spawn++;
+                }
+
+                if (rectSave.Contains(mouseState.Position))
+                {
+                    game.SaveBoard();
+                }
+                if (rectLoad.Contains(mouseState.Position))
+                {
+                    game.LoadBoard();
                 }
             }
             else if (mouseState.RightButton == ButtonState.Released && prevMouseState.RightButton == ButtonState.Pressed)
@@ -203,6 +236,8 @@ namespace _2048
             bombActive = game.BombActive;
             upgradeActive = game.UpActive;
             upgrades = game.Upgrades;
+            saveGameText = game.Savetxt;
+            loadGameText = game.Loadtxt;
             base.Update(gameTime);
         }
 
@@ -221,6 +256,13 @@ namespace _2048
             _spriteBatch.DrawString(spriteFont, "Highscore: " + highScore, new Vector2(rectMargin.X + 250, rectMargin.Y - 50), Color.Black);
             _spriteBatch.Draw(bombTexture, rectBomb, Color.White);
             _spriteBatch.DrawString(spriteFont, userbomb+"",new Vector2(rectBomb.Right, rectBomb.Bottom), Color.White);
+            _spriteBatch.Draw(squareTexture, rectSave, Color.Green);
+            Vector2 txtVector = new Vector2(rectSave.X+rectSave.Width/2-spriteFont2.MeasureString(saveGameText).X/2, rectSave.Y+rectSave.Height/2-spriteFont2.MeasureString(saveGameText).Y/2);
+            _spriteBatch.DrawString(spriteFont2, saveGameText, txtVector, Color.White);
+            _spriteBatch.Draw(squareTexture, rectLoad, Color.GreenYellow);
+            Vector2 txtVector1 = new Vector2(rectLoad.X + rectLoad.Width / 2 - spriteFont2.MeasureString(loadGameText).X / 2, rectLoad.Y + rectLoad.Height / 2 - spriteFont2.MeasureString(loadGameText).Y / 2);
+            _spriteBatch.DrawString(spriteFont2, loadGameText, txtVector1, Color.White) ;
+
             if (upgradeActive)
             {
                 _spriteBatch.Draw(UpTexture, rectUpgrade, Color.LightGreen);

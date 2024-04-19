@@ -92,6 +92,13 @@
 /processorParam:TextureFormat=Compressed
 /build:SpriteFont.spritefont
 
+#begin SpriteFont2.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:SpriteFont2.spritefont
+
 #begin square.png
 /importer:TextureImporter
 /processor:TextureProcessor

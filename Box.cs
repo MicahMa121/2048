@@ -34,7 +34,7 @@ namespace _2048
             }
             _center = new Vector2(_position.X + _position.Width/2, _position.Y + _position.Height/2);
             _rectangle = new Rectangle((int)_center.X - _grow,(int)_center.Y -_grow, _grow * 2, _grow * 2);
-            if (color == Color.Black)
+            if (Value>= 8192)
             {
                 _txtColor = Color.Blue;
             }
@@ -63,6 +63,12 @@ namespace _2048
         }
         public void Update()
         {
+            if (Value >= 8192)
+            {
+                _txtColor = Color.Blue;
+            }
+            else
+                _txtColor = Color.Black;
             if (_grow < 45)
             {
                 _grow += 2;
