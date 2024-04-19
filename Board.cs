@@ -18,20 +18,12 @@ namespace _2048
         private int _level;
         private SpriteFont _font;
         private int _score,_highscore;
-        private Texture2D _restart;
-        private Restart _restartButton;
         private int _bomb;
         private bool _bombActive;
         private bool _upActive;
         private int _spawn;
         private int _upgrades;
         private int _levelScore;
-        public Texture2D Restart
-        {
-            get { return _restart; }
-            set { _restart = value; }
-        }
-
         public SoundEffect _pop;
         public SoundEffect _bub;
         public SoundEffect _block1;
@@ -45,7 +37,6 @@ namespace _2048
             _font = font;
             _savetxt = "Save Game";
             _loadtxt = "Load Game";
-            pause = false;
         }
         public int Score { get { return _score; }set { _score = value; } }
         public int HighScore { get { return _highscore; } set { _highscore = value; } }
@@ -75,7 +66,6 @@ namespace _2048
         }
         public void LoadBoard()
         {
-            if (pause) return;
             _loadtxt = "Loading...";
             if (File.Exists(@"history.txt"))
             {
@@ -110,7 +100,6 @@ namespace _2048
         }
         public void SaveBoard()
         {
-            if (pause) return;
             _savetxt = "Saving...";
             if (File.Exists(@"history.txt"))
             {
@@ -185,8 +174,6 @@ namespace _2048
                 {
                     _block2.Play();
                     Rectangle position = new Rectangle(_border.X + _border.Width / 2 - _border.Width / 4, _border.Y + _border.Height / 2 - _border.Height / 4, _border.Width / 2, _border.Height / 2);
-                    _restartButton = new Restart(_restart, position);
-                    pause = true;
                     return;
                 }
                 else
@@ -272,8 +259,6 @@ namespace _2048
         }
         public void Up()
         {
-            if (pause) return;
-            pause = true;
             _savetxt = "Save Game";
             _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
@@ -353,12 +338,9 @@ namespace _2048
                 
             }
             NewBoxAtRandom();
-            pause = false;
         }
         public void Left()
         {
-            if (pause) return;
-            pause = true;
             _savetxt = "Save Game";
             _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
@@ -435,12 +417,9 @@ namespace _2048
 
             }
             NewBoxAtRandom();
-            pause = false;
         }
         public void Down()
         {
-            if (pause) return;
-            pause = true;
             _savetxt = "Save Game";
             _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
@@ -517,12 +496,9 @@ namespace _2048
 
             }
             NewBoxAtRandom();
-            pause = false;
         }
         public void Right()
         {
-            if (pause) return;
-            pause = true;
             _savetxt = "Save Game";
             _loadtxt = "Load Game";
             for (int i = 0; i < 4; i++)
@@ -599,7 +575,6 @@ namespace _2048
 
             }
             NewBoxAtRandom();
-            pause = false;
         }
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -610,15 +585,10 @@ namespace _2048
                     _board[i,j].Draw(spriteBatch);
                 }
             }
-            if (_restartButton != null)
-            {
-            _restartButton.Draw(spriteBatch);  
-            }
 
         }
         public void Update(MouseState mouseState, MouseState prevMouseState)
         {
-
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -628,13 +598,6 @@ namespace _2048
             }
             if (mouseState.LeftButton == ButtonState.Released && prevMouseState.LeftButton == ButtonState.Pressed)
             {
-                if (_restartButton != null && _restartButton.Rectangle.Contains(mouseState.Position))
-                {
-                    _restartButton = null;
-                    NewBoard();
-                    pause = false;
-                    _block1.Play();
-                }
                 for (int i = 0;i < 4; i++)
                 {
                     for (int j =0; j < 4; j++)

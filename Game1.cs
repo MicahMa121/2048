@@ -3,10 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Diagnostics.Tracing;
 using System.IO;
-using System.Text;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace _2048
 {
@@ -27,7 +24,7 @@ namespace _2048
         int objectFloat=0,period = 4;
         int upgrades;
 
-        Rectangle rectBorder,rectMargin,rectBomb,rectUpgrade,rectSave,rectLoad;
+        Rectangle rectBorder,rectMargin,rectBomb,rectUpgrade,rectSave,rectLoad,rectRestart;
 
         string saveGameText,loadGameText;
         int width,height;
@@ -63,7 +60,7 @@ namespace _2048
             rectUpgrade = new Rectangle(width / 15, height * 2 / 5, 64, 64);
             rectSave = new Rectangle(width * 4 / 5, height * 5 / 6, 150, 50);
             rectLoad = new Rectangle(width * 4 / 5, height * 2/3, 150, 50);
-
+            rectRestart = new Rectangle(width *17/20, height / 6, 64, 64);
 
 
             score = 0;
@@ -90,7 +87,6 @@ namespace _2048
             game = new Board(rectTexture, rectBorder,spriteFont);
             game._pop = popSound;
             game._bub = bubSound;
-            game.Restart = restartTexture;
             game._block1 = block1Sound; game._block2 = block2Sound;
             game.NewBoard();
             game.AddTo(0, 0, 2);
@@ -192,7 +188,11 @@ namespace _2048
                     game.Upgrades = upgrades;
                     game.Spawn++;
                 }
-
+                else if (rectRestart.Contains(mouseState.Position))
+                {
+                    game.NewBoard();
+                    block1Sound.Play();
+                }
                 if (rectSave.Contains(mouseState.Position))
                 {
                     game.SaveBoard();
@@ -218,15 +218,31 @@ namespace _2048
             {
                 game.Up();
             }
-            if (keyboardState.IsKeyDown(Keys.S) && prevKeyboardState.IsKeyUp(Keys.S))
+            else if (keyboardState.IsKeyDown(Keys.S) && prevKeyboardState.IsKeyUp(Keys.S))
             {
                 game.Down();
             }
-            if (keyboardState.IsKeyDown(Keys.A) && prevKeyboardState.IsKeyUp(Keys.A))
+            else if (keyboardState.IsKeyDown(Keys.A) && prevKeyboardState.IsKeyUp(Keys.A))
             {
                 game.Left();
             }
-            if (keyboardState.IsKeyDown(Keys.D) && prevKeyboardState.IsKeyUp(Keys.D))
+            else if (keyboardState.IsKeyDown(Keys.D) && prevKeyboardState.IsKeyUp(Keys.D))
+            {
+                game.Right();
+            }
+            else if (keyboardState.IsKeyDown(Keys.Up) && prevKeyboardState.IsKeyUp(Keys.Up))
+            {
+                game.Up();
+            }
+            else if (keyboardState.IsKeyDown(Keys.Down) && prevKeyboardState.IsKeyUp(Keys.Down))
+            {
+                game.Down();
+            }
+            else if (keyboardState.IsKeyDown(Keys.Left) && prevKeyboardState.IsKeyUp(Keys.Left))
+            {
+                game.Left();
+            }
+            else if (keyboardState.IsKeyDown(Keys.Right) && prevKeyboardState.IsKeyUp(Keys.Right))
             {
                 game.Right();
             }
@@ -262,6 +278,7 @@ namespace _2048
             _spriteBatch.Draw(squareTexture, rectLoad, Color.GreenYellow);
             Vector2 txtVector1 = new Vector2(rectLoad.X + rectLoad.Width / 2 - spriteFont2.MeasureString(loadGameText).X / 2, rectLoad.Y + rectLoad.Height / 2 - spriteFont2.MeasureString(loadGameText).Y / 2);
             _spriteBatch.DrawString(spriteFont2, loadGameText, txtVector1, Color.White) ;
+            _spriteBatch.Draw(restartTexture, rectRestart, Color.White);
 
             if (upgradeActive)
             {
