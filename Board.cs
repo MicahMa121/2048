@@ -28,7 +28,7 @@ namespace _2048
         public SoundEffect _bub;
         public SoundEffect _block1;
         public SoundEffect _block2;
-        private bool pause;
+        public SoundEffect _bombsound;
         private Rectangle[,] _rectangles = new Rectangle[4,4];
         public Board(Texture2D texture, Rectangle border, SpriteFont font)
         {
@@ -602,10 +602,11 @@ namespace _2048
                 {
                     for (int j =0; j < 4; j++)
                     {
-                        if (BombActive && _rectangles[i, j].Contains(mouseState.Position))
+                        if (BombActive && _rectangles[i, j].Contains(mouseState.Position)&&_board[i, j].Value != 0)
                         {
                             NewEmpty(i,j);
                             BombActive = false;
+                            _bombsound.Play();
                             break;
                         }
                     }

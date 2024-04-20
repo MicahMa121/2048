@@ -67,7 +67,7 @@ namespace _2048
             {
                 _txtColor = Color.Blue;
             }
-            else
+            else 
                 _txtColor = Color.Black;
             if (_grow < 45)
             {
@@ -82,8 +82,9 @@ namespace _2048
             Vector2 txtPosition = new Vector2(_center.X-_font.MeasureString(txt).X/2, _center.Y- _font.MeasureString(txt).Y/2);
             
             spriteBatch.Draw(_texture, _rectangle, _color);
+            if (Value != 0)
+                spriteBatch.DrawString(_font, txt, txtPosition ,_txtColor);
             
-            spriteBatch.DrawString(_font, txt, txtPosition ,_txtColor);
         }
     }
 }
