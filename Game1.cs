@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.IO;
-using System.Security.Principal;
 
 namespace _2048
 {
@@ -25,7 +24,7 @@ namespace _2048
         int objectFloat=0,period = 4;
         int upgrades;
 
-        Rectangle rectBorder,rectMargin,rectBomb,rectUpgrade,rectSave,rectLoad,rectRestart;
+        Rectangle rectBorder,rectMargin,rectBomb,rectUpgrade,rectSave,rectLoad,rectRestart,rectExit;
 
         string saveGameText,loadGameText;
         int width,height;
@@ -49,8 +48,9 @@ namespace _2048
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            _graphics.PreferredBackBufferWidth = 800;
-            _graphics.PreferredBackBufferHeight = 600;
+            _graphics.PreferredBackBufferWidth = GraphicsDevice.Adapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsDevice.Adapter.CurrentDisplayMode.Height;
+            _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
             width = _graphics.PreferredBackBufferWidth;
             height = _graphics.PreferredBackBufferHeight;
@@ -63,7 +63,7 @@ namespace _2048
             rectSave = new Rectangle(width * 4 / 5, height * 5 / 6, 150, 50);
             rectLoad = new Rectangle(width * 4 / 5, height * 2/3, 150, 50);
             rectRestart = new Rectangle(width *17/20, height / 6, 64, 64);
-
+            rectExit = new Rectangle(width * 1 / 5-150, height * 5 / 6, 150, 50);
 
             score = 0;
 
@@ -177,6 +177,15 @@ namespace _2048
                 rectLoad = new Rectangle(width * 4 / 5, height * 2 / 3, 150, 50);
             }
 
+            if (rectExit.Contains(mouseState.Position))
+            {
+                rectExit = new Rectangle(width * 1 / 5 - 150+5, height * 5 / 6+2, 140, 46);
+            }
+            else
+            {
+                rectExit = new Rectangle(width * 1 / 5 - 150, height * 5 / 6, 150, 50);
+            }
+
             if (mouseState.LeftButton == ButtonState.Released && prevMouseState.LeftButton == ButtonState.Pressed)
             {
                 if (rectBomb.Contains(mouseState.Position)&&userbomb>0&&!bombActive)
@@ -204,6 +213,10 @@ namespace _2048
                 if (rectLoad.Contains(mouseState.Position))
                 {
                     game.LoadBoard();
+                }
+                if (rectExit.Contains(mouseState.Position))
+                {
+                    Exit();
                 }
             }
             else if (mouseState.RightButton == ButtonState.Released && prevMouseState.RightButton == ButtonState.Pressed)
@@ -283,6 +296,9 @@ namespace _2048
             Vector2 txtVector1 = new Vector2(rectLoad.X + rectLoad.Width / 2 - spriteFont2.MeasureString(loadGameText).X / 2, rectLoad.Y + rectLoad.Height / 2 - spriteFont2.MeasureString(loadGameText).Y / 2);
             _spriteBatch.DrawString(spriteFont2, loadGameText, txtVector1, Color.White) ;
             _spriteBatch.Draw(restartTexture, rectRestart, Color.White);
+            _spriteBatch.Draw(squareTexture, rectExit, Color.Red);
+            Vector2 txtVector2 = new Vector2(rectExit.X + rectExit.Width / 2 - spriteFont2.MeasureString("Exit").X / 2, rectExit.Y + rectExit.Height / 2 - spriteFont2.MeasureString("Exit").Y / 2);
+            _spriteBatch.DrawString(spriteFont2, "Exit", txtVector2, Color.White);
 
             if (upgradeActive)
             {
